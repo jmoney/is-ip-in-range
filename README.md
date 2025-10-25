@@ -512,7 +512,6 @@ Uses Maven Release Plugin to:
 4. Build and deploy release to GitHub Packages
 5. Bump to next development version (e.g., `1.1.0-SNAPSHOT`)
 6. Commit and push to `main`
-7. Push to `main` triggers `main.yaml` → publishes new snapshot
 
 **How to create a release:**
 
@@ -527,8 +526,10 @@ Uses Maven Release Plugin to:
 **That's it!** Maven Release Plugin handles:
 - ✅ Version updates
 - ✅ Git commits and tags
-- ✅ Building and publishing
+- ✅ Building and publishing release
 - ✅ Version bumping for next development cycle
+
+**Note on snapshots:** Due to GitHub Actions security (workflows triggered by `GITHUB_TOKEN` don't trigger other workflows), the new snapshot version won't be automatically published. The snapshot will be published on the next push to `main`, or you can manually trigger `main.yaml` if you need the snapshot immediately.
 
 ### Workflow Summary
 
@@ -545,7 +546,11 @@ release.yaml runs → mvn release:prepare release:perform
   ├─ Publishes 1.0.0 release
   └─ Pushes 1.1.0-SNAPSHOT to main
        ↓
-     main.yaml runs → Publishes 1.1.0-SNAPSHOT
+     (Note: main.yaml won't auto-trigger due to GitHub Actions security)
+
+Next push to main
+  ↓
+main.yaml runs → Publishes 1.1.0-SNAPSHOT
 ```
 
 ### Local Development
