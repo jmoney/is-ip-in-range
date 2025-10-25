@@ -115,6 +115,27 @@ mvn clean install
 
 Then use the dependency without needing GitHub authentication.
 
+### Published Artifacts
+
+When publishing to GitHub Packages, the build automatically generates and uploads three JARs:
+
+1. **Main JAR** (`is-ip-in-range-1.0.0-SNAPSHOT.jar`)
+   - Compiled bytecode
+   - What gets added to your classpath
+
+2. **Sources JAR** (`is-ip-in-range-1.0.0-SNAPSHOT-sources.jar`)
+   - Original `.java` source files
+   - IDEs (IntelliJ, Eclipse, VS Code) automatically download this
+   - Allows you to navigate into library code and see actual source
+   - Essential for debugging and understanding the code
+
+3. **Javadoc JAR** (`is-ip-in-range-1.0.0-SNAPSHOT-javadoc.jar`)
+   - Generated HTML documentation
+   - IDEs show javadoc in code completion tooltips
+   - Can be viewed in browser
+
+**No additional configuration needed** - Maven and your IDE handle downloading sources/javadoc automatically when you use the dependency!
+
 ## Usage
 
 ### Basic Usage
