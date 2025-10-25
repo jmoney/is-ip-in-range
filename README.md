@@ -472,90 +472,101 @@ Note: Lookup time remains constant regardless of dataset size!
 
 ## Publishing (Maintainers)
 
-The library is automatically published to GitHub Packages using two strategies:
+The project uses three automated GitHub Actions workflows:
 
-### Snapshot Publishing (Automatic)
+### 1. Pull Request Validation (`pr.yaml`)
 
-**Triggers:** Every push to `main` branch
+**Trigger:** Pull requests to `main`
 
-Snapshots are automatically published when you push to main:
-- Version: `1.0.0-SNAPSHOT` (as defined in `pom.xml`)
-- **No manual action required** - just merge PRs to main
-- Users can get latest development version with `mvn -U clean install`
-- Perfect for testing unreleased features
+**Actions:**
+- Runs all tests
+- No deployment
+
+**Purpose:** Validates changes before merging
+
+### 2. Snapshot Publishing (`main.yaml`)
+
+**Trigger:** Every push to `main` branch
+
+**Actions:**
+- Builds the project
+- Runs all tests
+- Publishes snapshot to GitHub Packages (e.g., `1.0.0-SNAPSHOT`)
 
 **How it works:**
-1. Push code to `main` branch (or merge a PR)
-2. GitHub Actions automatically builds and publishes snapshot
-3. Developers can immediately use the latest snapshot version
+1. Merge a PR to `main`
+2. Workflow automatically publishes new snapshot
+3. Developers can use latest snapshot with `mvn -U clean install`
 
-### Release Publishing (Manual)
+**No manual action required** - snapshots are published automatically!
 
-**Triggers:** Creating a GitHub release
+### 3. Release Publishing (`release.yaml`)
 
-For stable releases:
+**Trigger:** Manual workflow dispatch from GitHub UI
 
-1. **Update version in `pom.xml`** (remove `-SNAPSHOT` suffix):
-   ```xml
-   <version>1.0.0</version>
-   ```
+**Actions:**
+Uses Maven Release Plugin to:
+1. Remove `-SNAPSHOT` from version (e.g., `1.0.0`)
+2. Commit the release version
+3. Create and push git tag (e.g., `v1.0.0`)
+4. Build and deploy release to GitHub Packages
+5. Bump to next development version (e.g., `1.1.0-SNAPSHOT`)
+6. Commit and push to `main`
+7. Push to `main` triggers `main.yaml` → publishes new snapshot
 
-2. **Commit and push** the version change:
-   ```bash
-   git add pom.xml
-   git commit -m "Release v1.0.0"
-   git push origin main
-   ```
+**How to create a release:**
 
-3. **Create a tag**:
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
+1. Go to **Actions** tab on GitHub
+2. Select **"Release"** workflow
+3. Click **"Run workflow"**
+4. (Optional) Specify versions or let Maven auto-increment:
+   - Release version: `1.0.0`
+   - Development version: `1.1.0-SNAPSHOT`
+5. Click **"Run workflow"**
 
-4. **Create GitHub Release**:
-   - Go to GitHub → Releases → Draft a new release
-   - Select the tag `v1.0.0`
-   - Add release notes describing changes
-   - Click "Publish release"
+**That's it!** Maven Release Plugin handles:
+- ✅ Version updates
+- ✅ Git commits and tags
+- ✅ Building and publishing
+- ✅ Version bumping for next development cycle
 
-5. **Bump to next snapshot** version:
-   ```xml
-   <version>1.1.0-SNAPSHOT</version>
-   ```
-   Commit and push so main continues publishing snapshots.
+### Workflow Summary
 
-The GitHub Actions workflow will automatically:
-- Build the project
-- Run all tests
-- Publish the release JAR to GitHub Packages
+```
+PR → main (via merge)
+  ↓
+main.yaml runs → Publishes 1.0.0-SNAPSHOT
 
-### Manual Publishing
+Release workflow (manual trigger)
+  ↓
+release.yaml runs → mvn release:prepare release:perform
+  ↓
+  ├─ Creates tag v1.0.0
+  ├─ Publishes 1.0.0 release
+  └─ Pushes 1.1.0-SNAPSHOT to main
+       ↓
+     main.yaml runs → Publishes 1.1.0-SNAPSHOT
+```
 
-To manually trigger the publish workflow (for any branch):
-1. Go to the Actions tab on GitHub
-2. Select "Publish to GitHub Packages"
-3. Click "Run workflow"
-4. Select branch and click "Run workflow"
-
-### Local Development Publishing
+### Local Development
 
 For local testing, install to your local Maven repository:
 ```bash
 mvn clean install
 ```
 
-### Using Snapshots vs Releases
+### Version Types
 
 **Snapshots** (`1.0.0-SNAPSHOT`):
 - Latest development version
 - Updated automatically on every main branch push
 - May be unstable
 - Use for testing and development
-- Maven will check for updates with `-U` flag
+- Maven checks for updates with `-U` flag
 
 **Releases** (`1.0.0`):
 - Stable, tested versions
+- Created via Release workflow
 - Immutable once published
 - Use in production
 - Semantic versioning recommended

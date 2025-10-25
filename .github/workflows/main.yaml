@@ -1,14 +1,11 @@
-name: Publish to GitHub Packages
+name: Publish Snapshot
 
 on:
   push:
-    branches: [main]  # Auto-publish SNAPSHOT on main branch pushes
-  release:
-    types: [created]  # Publish release versions
-  workflow_dispatch:  # Allow manual trigger
+    branches: [main]
 
 jobs:
-  publish:
+  publish-snapshot:
     runs-on: ubuntu-latest
     permissions:
       contents: read
