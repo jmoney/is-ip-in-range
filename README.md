@@ -411,7 +411,7 @@ Low-level radix tree for IPv6 addresses.
 
 ## Requirements
 
-- Java 11 or higher
+- Java 21 or higher
 - Maven 3.6+ (for building)
 
 ## Building
